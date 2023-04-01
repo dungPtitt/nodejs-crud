@@ -42,14 +42,13 @@ let handleCreateLaptop= async (data) => {
         })
       }
       let laptop = await db.Laptop.findOne({
-        where: {name: data.name, brand: data.brand},
+        where: {name: data.name, brand: data.brand, dateManufacture: data.dateManufacture},
         raw: true
       })
       if(laptop){
-        console.log("check: ", laptop);
         return resolve({
           errCode: 2, 
-          errMessage: "Lap top da ton tai trong db!"
+          errMessage: "Tên, brand và ngày sx của laptop đã có trong database.Vui lòng thư lại!"
         })
       }
       await db.Laptop.create({
@@ -88,11 +87,24 @@ let handleUpdateLaptop = (data)=>{
           errMessage: "Laptop not found!"
         })
       }
-      laptop.name = data.name? data.name : laptop.name;
-      laptop.price = data.price? data.price : laptop.price;
-      laptop.brand = data.brand? data.brand: laptop.brand;
+      // ten va cac thuoc tinh kiem tra co su thay doi thi moi can kiem tra them
+      if(!(laptop.name==data.name && laptop.brand==data.brand&&laptop.dateManufacture==data.dateManufacture)){
+        let checkLaptop = await db.Laptop.findOne({
+          where: {name: data.name, brand: data.brand, dateManufacture: data.dateManufacture},
+          raw: true
+        })
+        if(checkLaptop){
+          return resolve({
+            errCode: 5,
+            errMessage: "Tên, brand và ngày sx của laptop đã có trong database.Vui lòng thư lại!"
+          })
+        }
+      }
+      laptop.name = data.name;
+      laptop.price = data.price;
+      laptop.brand = data.brand;
       laptop.sold = data.sold?data.sold:0;
-      laptop.dateManufacture = data.dateManufacture? data.dateManufacture: laptop.dateManufacture;
+      laptop.dateManufacture = data.dateManufacture;
       await laptop.save();
       resolve({
         errCode: 0,

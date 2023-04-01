@@ -10,8 +10,7 @@ let createLaptop = async(req, res)=>{
     if(response.errCode==0){
       return res.redirect("/");
     }
-    return res.render("laptop/editAndAdd.ejs", {data: data, idLaptop: idLaptop, errMessage: response.errMessage});
-
+    return res.render("errPage", {errMessage: response.errMessage});
   }catch(e){
     console.log(e);
     res.status(500).json({
@@ -69,7 +68,10 @@ let updateLaptop = async(req, res)=>{
       data.sold = "0";
     }
     let response = await laptopService.handleUpdateLaptop(data);
-    return res.redirect("/");
+    if(response.errCode==0){
+      return res.redirect("/");
+    }
+    return res.render("errPage", {errMessage: response.errMessage});
   }catch(e){
     console.log(e);
     res.status(500).json({
